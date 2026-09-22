@@ -1,5 +1,18 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
+console.log(
+  '[Debug] providers contents:',
+  fs.readdirSync(__dirname)
+);
+
+console.log(
+  '[Debug] febbox contents:',
+  fs.readdirSync(path.join(__dirname, 'febbox'))
+);
+
 const {
   resolveMovie,
   resolveEpisode
