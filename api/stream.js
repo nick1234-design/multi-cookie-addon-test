@@ -1,17 +1,17 @@
-import { getTestStreams } from "../lib/test-provider.js";
+import Showbox from "../providers/Showbox.js";
 
 export default async function handler(req, res) {
   try {
-    const streams = await getTestStreams();
-
     res.status(200).json({
-      streams
+      loaded: true,
+      showboxLoaded: typeof Showbox
     });
   } catch (error) {
-    console.error("[Addon]", error.message);
+    console.error("[Addon]", error);
 
     res.status(500).json({
-      streams: []
+      loaded: false,
+      error: error.message
     });
   }
 }
