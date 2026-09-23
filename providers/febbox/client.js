@@ -302,12 +302,17 @@ async function getQuota({ token }) {
     data.data &&
     data.data.flow;
 
-  if (!flow) {
-    throw new FebBoxError(
-      'Unexpected quota response shape',
-      'UPSTREAM_ERROR'
+if (!flow) {
+    console.warn(
+        '[FebBox Quota Debug] Unexpected response:',
+        JSON.stringify(data)
     );
-  }
+
+    throw new FebBoxError(
+        'Unexpected quota response shape',
+        'UPSTREAM_ERROR'
+    );
+}
 
   const limitMB =
     Number(flow.traffic_limit_mb) || 0;
