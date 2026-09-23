@@ -47,7 +47,12 @@ const finalCookieHeader = cookieHeader;
 
         const flow = response.data?.data?.flow;
 
-        if (!flow) {
+console.log(
+    "[CookieQuota] Response structure:",
+    JSON.stringify(response.data, null, 2)
+);
+
+if (!flow) {
             console.warn(
                 `[CookieQuota] FebBox quota lookup failed with status ${response.status}`
             );
