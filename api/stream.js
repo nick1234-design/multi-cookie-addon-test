@@ -1,4 +1,6 @@
 import Showbox from "../providers/Showbox.js";
+import fs from "fs";
+import path from "path";
 
 export default async function handler(req, res) {
     try {
@@ -11,10 +13,22 @@ export default async function handler(req, res) {
             });
         }
 
+        // Load all cookies from cookies.txt
+        const cookiesPath = path.join(process.cwd(), "cookies.txt");
+        const cookiesContent = fs.readFileSync(cookiesPath, "utf8");
+
+        const userCookies = cookiesContent
+            .split(/\r?\n/)
+            .map(cookie => cookie.trim())
+            .filter(Boolean);
+
+        console.log(
+            `[Addon] Loaded ${userCookies.length} cookies for direct multi-cookie test.`
+        );
+
         let tmdbId = id;
         let tmdbType = type === "series" ? "tv" : "movie";
 
-        // Convert IMDb IDs such as tt0133093 to TMDB IDs
         if (id.startsWith("tt")) {
             const converted = await Showbox.convertImdbToTmdb(id);
 
@@ -29,13 +43,15 @@ export default async function handler(req, res) {
             tmdbType = converted.tmdbType;
         }
 
-        console.log(
-            `[Addon] Request: ${tmdbType}/${tmdbId}`
-        );
+        console.log(`[Addon] Request: ${tmdbType}/${tmdbId}`);
 
         const streams = await Showbox.getStreamsFromTmdbId(
             tmdbType,
-            tmdbId
+            tmdbId,
+            null,
+            null,
+            null,
+            userCookies
         );
 
         return res.status(200).json({
