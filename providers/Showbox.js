@@ -213,24 +213,28 @@ if (configuredCookies.length > 0) {
             console.log('[CookieManager] Using user-supplied cookie from global state (legacy mode) for this cycle.');
             baseCookieToUse = global.currentRequestUserCookie;
         }
-        // 3. Fallback to rotating cookies from cookies.txt
-        else {
-            if (cookieCache === null) {
-                cookieCache = await loadFallbackCookies();
-            }
+        // 3. Select fallback cookie from cookies.txt based on FebBox quota
+else {
+    if (cookieCache === null) {
+        cookieCache = await loadFallbackCookies();
+    }
 
-            if (cookieCache && cookieCache.length > 0) {
-                const fallbackCookie = cookieCache[cookieIndex]; // Get current fallback
-                const currentFallbackIndexDisplay = cookieIndex + 1; // For 1-based logging
-                // Advance index for the *next independent request cycle*, not for subsequent calls within this one.
-                cookieIndex = (cookieIndex + 1) % cookieCache.length;
-                console.log(`[CookieManager] Selected fallback cookie ${currentFallbackIndexDisplay} of ${cookieCache.length} from cookies.txt for this request cycle.`);
-                baseCookieToUse = fallbackCookie;
-            } else {
-                console.log('[CookieManager] No user-supplied or fallback cookies available for this cycle.');
-                baseCookieToUse = ''; // No base cookie to use
-            }
-        }
+    if (cookieCache && cookieCache.length > 0) {
+        baseCookieToUse = await pickCookieByFebboxQuota(
+            cookieCache,
+            regionPreference
+        );
+
+        const selectedIndex = cookieCache.indexOf(baseCookieToUse);
+
+        console.log(
+            `[CookieManager] Selected fallback cookie ${selectedIndex + 1} of ${cookieCache.length} based on FebBox quota.`
+        );
+    } else {
+        console.log('[CookieManager] No user-supplied or fallback cookies available for this cycle.');
+        baseCookieToUse = '';
+    }
+}
 
         // Cache the chosen base cookie for this request cycle
         if (global.currentRequestConfig) {
