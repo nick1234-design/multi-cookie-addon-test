@@ -2385,7 +2385,11 @@ catch (error) {
 
     // Apply size limit if not using a personal cookie
     let finalFilteredStreams = streamsToShowBoxFiltered;
-    if (!userCookie && !global.currentRequestUserCookie) {
+    if (
+    !userCookie &&
+    !global.currentRequestUserCookie &&
+    !(cookieCache && cookieCache.length > 0)
+) {
         console.log('[SizeLimit] No personal cookie detected. Applying 9GB size limit to ShowBox streams.');
         const NINE_GB_IN_BYTES = 9 * 1024 * 1024 * 1024;
         finalFilteredStreams = streamsToShowBoxFiltered.filter(stream => {
