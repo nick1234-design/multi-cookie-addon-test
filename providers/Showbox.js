@@ -2232,7 +2232,7 @@ const getStreamsFromTmdbIdSingle = async (tmdbType, tmdbId, seasonNum = null, ep
                 // Call refactored processShowWithSeasonsEpisodes (which now returns streams)
                 const tvStreams = await processShowWithSeasonsEpisodes(febboxUrl, baseStreamTitle, seasonNum, episodeNum, true, regionPreference, userCookie);
                 streamsFromThisShareInfo.push(...tvStreams);
-                        } else {
+                                    } else {
                 // Handle movies or TV shows without season/episode specified
 
                 // Try the new FebBox Direct resolver first.
@@ -2273,59 +2273,85 @@ const getStreamsFromTmdbIdSingle = async (tmdbType, tmdbId, seasonNum = null, ep
                     }
                 }
 
-                const { fids, shareKey, directSources } = await extractFidsFromFebboxPage(febboxUrl, regionPreference, userCookie);
-
-                if (directSources && directSources.length > 0) {
+                const { fids, shareKey, directSources } =
+                    await extractFidsFromFebboxPage(
+                        febboxUrl,
+                        regionPreference,
+                        userCookie
+                    );
 
                 if (directSources && directSources.length > 0) {
                     for (const source of directSources) {
                         const streamTitle = `${baseStreamTitle} - ${source.label}`;
                         let key5FromDirectSource = null;
+
                         try {
-                            const urlParams = new URLSearchParams(new URL(source.url).search);
+                            const urlParams =
+                                new URLSearchParams(new URL(source.url).search);
+
                             if (urlParams.has('KEY5')) {
                                 key5FromDirectSource = urlParams.get('KEY5');
                             }
-                        } catch(e) { /* ignore if URL parsing fails */ }
+                        } catch (e) {
+                            // Ignore URL parsing errors
+                        }
+
                         streamsFromThisShareInfo.push({
-                            title: streamTitle, 
+                            title: streamTitle,
                             url: source.url,
                             quality: parseQualityFromLabel(
-    `${source.label || ''} ${key5FromDirectSource || ''}`
-),
-                            codecs: extractCodecDetails(key5FromDirectSource || streamTitle) 
+                                `${source.label || ''} ${key5FromDirectSource || ''}`
+                            ),
+                            codecs: extractCodecDetails(
+                                key5FromDirectSource || streamTitle
+                            )
                         });
                     }
-                    // If direct sources are found, original code used 'continue', 
-                    // effectively skipping FID processing for this shareInfo. 
-                    // This behavior is maintained as FID processing is in the 'else if' block.
-                } else if (false && fids.length > 0 && shareKey) { // Only process FIDs if no directSources were found
-                    const fidPromises = fids.map(fid => fetchSourcesForSingleFid(fid, shareKey, regionPreference, userCookie));
+                } else if (fids.length > 0 && shareKey) {
+                    const fidPromises = fids.map(fid =>
+                        fetchSourcesForSingleFid(
+                            fid,
+                            shareKey,
+                            regionPreference,
+                            userCookie
+                        )
+                    );
+
                     const fidSourcesArray = await Promise.all(fidPromises);
 
                     for (const sources of fidSourcesArray) {
                         if (!sources || !Array.isArray(sources)) {
-                            console.log(`  Warning: Invalid sources data received: ${typeof sources}`);
+                            console.log(
+                                `  Warning: Invalid sources data received: ${typeof sources}`
+                            );
                             continue;
                         }
 
                         for (const source of sources) {
                             if (!source || !source.url || !source.label) {
-                                console.log(`  Warning: Invalid source object: ${JSON.stringify(source)}`);
+                                console.log(
+                                    `  Warning: Invalid source object: ${JSON.stringify(source)}`
+                                );
                                 continue;
                             }
 
-                            const streamTitle = `${baseStreamTitle} - ${source.label}`;
+                            const streamTitle =
+                                `${baseStreamTitle} - ${source.label}`;
+
                             streamsFromThisShareInfo.push({
-                                title: streamTitle, 
+                                title: streamTitle,
                                 url: source.url,
                                 quality: parseQualityFromLabel(source.label),
-                                codecs: extractCodecDetails(source.detailedFilename || streamTitle) 
+                                codecs: extractCodecDetails(
+                                    source.detailedFilename || streamTitle
+                                )
                             });
                         }
                     }
-                } else if (!directSources || directSources.length === 0) {
-                    console.log(`No FIDs or share key found, and no direct sources for ${febboxUrl}`);
+                } else {
+                    console.log(
+                        `No FIDs or share key found, and no direct sources for ${febboxUrl}`
+                    );
                 }
             }
         } catch (error) {
