@@ -198,11 +198,17 @@ console.log(`[CookieManager] Cookie ${configuredCookies.length}: length=${c.trim
     }
 }
 
-if (configuredCookies.length > 0) {
+if (userCookie && userCookie.trim()) {
+    baseCookieToUse = userCookie.trim();
+
+    console.log(
+        '[CookieManager] Using explicitly supplied cookie directly for this test.'
+    );
+} else if (configuredCookies.length > 0) {
     baseCookieToUse = await pickCookieByFebboxQuota(
-    configuredCookies,
-    regionPreference
-);
+        configuredCookies,
+        regionPreference
+    );
 
     console.log(
         `[CookieManager] Selected ShowBox cookie based on FebBox quota: ${configuredCookies.indexOf(baseCookieToUse) + 1} of ${configuredCookies.length}.`
