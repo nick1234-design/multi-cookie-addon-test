@@ -2258,7 +2258,7 @@ const getStreamsFromTmdbIdSingle = async (tmdbType, tmdbId, seasonNum = null, ep
                     // If direct sources are found, original code used 'continue', 
                     // effectively skipping FID processing for this shareInfo. 
                     // This behavior is maintained as FID processing is in the 'else if' block.
-                } else if (fids.length > 0 && shareKey) { // Only process FIDs if no directSources were found
+                } else if (false && fids.length > 0 && shareKey) { // Only process FIDs if no directSources were found
                     const fidPromises = fids.map(fid => fetchSourcesForSingleFid(fid, shareKey, regionPreference, userCookie));
                     const fidSourcesArray = await Promise.all(fidPromises);
 
