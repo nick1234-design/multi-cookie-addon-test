@@ -2232,9 +2232,50 @@ const getStreamsFromTmdbIdSingle = async (tmdbType, tmdbId, seasonNum = null, ep
                 // Call refactored processShowWithSeasonsEpisodes (which now returns streams)
                 const tvStreams = await processShowWithSeasonsEpisodes(febboxUrl, baseStreamTitle, seasonNum, episodeNum, true, regionPreference, userCookie);
                 streamsFromThisShareInfo.push(...tvStreams);
-            } else {
+                        } else {
                 // Handle movies or TV shows without season/episode specified
+
+                // Try the new FebBox Direct resolver first.
+                const directShareKeyMatch = febboxUrl &&
+                    febboxUrl.match(/\/share\/([a-zA-Z0-9_-]+)/);
+
+                if (directShareKeyMatch) {
+                    const directShareKey = directShareKeyMatch[1];
+
+                    try {
+                        const directStreams = await getFebboxDirectMovieStreams({
+                            shareKey: directShareKey,
+                            token: userCookie
+                        });
+
+                        if (Array.isArray(directStreams) && directStreams.length > 0) {
+                            for (const stream of directStreams) {
+                                streamsFromThisShareInfo.push({
+                                    title: `${baseStreamTitle} - ${stream.quality || 'ORG'} [FebBox Direct]`,
+                                    url: stream.url,
+                                    quality: stream.quality || 'ORG',
+                                    size: stream.size || 'Unknown size',
+                                    codecs: stream.codecs || [],
+                                    provider: 'FebBox Direct'
+                                });
+                            }
+
+                            console.log(
+                                `[FebBox Direct] Added ${directStreams.length} stream(s) before old parser.`
+                            );
+
+                            return streamsFromThisShareInfo;
+                        }
+                    } catch (error) {
+                        console.log(
+                            `[FebBox Direct] Early resolver failed: ${error.message}`
+                        );
+                    }
+                }
+
                 const { fids, shareKey, directSources } = await extractFidsFromFebboxPage(febboxUrl, regionPreference, userCookie);
+
+                if (directSources && directSources.length > 0) {
 
                 if (directSources && directSources.length > 0) {
                     for (const source of directSources) {
