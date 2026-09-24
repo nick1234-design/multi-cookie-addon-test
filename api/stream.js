@@ -18,9 +18,10 @@ export default async function handler(req, res) {
         const cookiesContent = fs.readFileSync(cookiesPath, "utf8");
 
         const userCookies = cookiesContent
-            .split(/\r?\n/)
-            .map(cookie => cookie.trim())
-            .filter(Boolean);
+    .split(/\r?\n/)
+    .map(cookie => cookie.trim())
+    .filter(Boolean)
+    .slice(0, 1);
 
         console.log(
             `[Addon] Loaded ${userCookies.length} cookies for direct multi-cookie test.`
