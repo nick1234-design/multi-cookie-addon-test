@@ -231,12 +231,17 @@ async function listShareFiles({
     }
   );
 
-  const list =
+  console.log(
+    '[FebBox Direct Debug] file_share_list response:',
+    JSON.stringify(data)
+);
+
+const list =
     data &&
     data.data &&
     Array.isArray(data.data.file_list)
-      ? data.data.file_list
-      : [];
+        ? data.data.file_list
+        : [];
 
   return list.map(f => ({
     fid: String(f.fid),
