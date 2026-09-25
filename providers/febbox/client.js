@@ -271,15 +271,16 @@ async function getVideoQualityLinks({
   }
 
   const data = await febboxGet(
-    '/console/video_quality_list',
-    {
-      token,
-      shareKey,
-      params: {
-        fid
-      }
+  '/console/video_quality_list',
+  {
+    token,
+    shareKey,
+    params: {
+      fid,
+      share_key: shareKey
     }
-  );
+  }
+);
 console.log(
   '[FebBox Direct Debug] video_quality_list response:',
   JSON.stringify(data)
