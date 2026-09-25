@@ -2236,8 +2236,10 @@ const getStreamsFromTmdbIdSingle = async (tmdbType, tmdbId, seasonNum = null, ep
                 // Handle movies or TV shows without season/episode specified
 
                 // Try the new FebBox Direct resolver first.
-                const directShareKeyMatch = febboxUrl &&
-                    febboxUrl.match(/\/share\/([a-zA-Z0-9_-]+)/);
+console.log(`[FebBox Direct TEST] Reached Direct-first block. URL: ${febboxUrl}`);
+
+const directShareKeyMatch = febboxUrl &&
+    febboxUrl.match(/\/share\/([a-zA-Z0-9_-]+)/);
 
                 if (directShareKeyMatch) {
                     const directShareKey = directShareKeyMatch[1];
