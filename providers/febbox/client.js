@@ -280,6 +280,10 @@ async function getVideoQualityLinks({
       }
     }
   );
+console.log(
+  '[FebBox Direct Debug] video_quality_list response:',
+  JSON.stringify(data)
+);
 
   const html =
     data &&
