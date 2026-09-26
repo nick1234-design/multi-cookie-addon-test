@@ -258,11 +258,18 @@ const list =
  * GET /console/video_quality_list
  * Resolve a file into direct quality links.
  */
-async function getVideoQualityLinks({
-  token,
-  shareKey,
-  fid
-}) {
+async function getVideoQualityLinks({ token, shareKey, fid }) {
+  if (!fid) throw new FebBoxError('fid is required', 'NOT_FOUND');
+
+  const data = await febboxGet('/console/video_quality_list', {
+    token,
+    shareKey,
+    params: { fid },
+  });
+
+  const html = data && typeof data.html === 'string' ? data.html : '';
+  return html;
+}
   if (!fid) {
     throw new FebBoxError(
       'fid is required',
