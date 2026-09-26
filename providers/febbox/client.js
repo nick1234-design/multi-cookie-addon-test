@@ -286,6 +286,10 @@ async function getVideoQualityLinks({ token, shareKey, fid }) {
       shareKey,
       params: {
         fid
+      },
+      headers: {
+        Referer: `${FEBBOX_ORIGIN}/share/${shareKey}`,
+        Origin: FEBBOX_ORIGIN
       }
     }
   );
