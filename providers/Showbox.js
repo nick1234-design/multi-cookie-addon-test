@@ -2246,9 +2246,9 @@ const directShareKeyMatch = febboxUrl &&
 
                     try {
                         const directStreams = await getFebboxDirectMovieStreams({
-                            shareKey: directShareKey,
-                            token: userCookie
-                        });
+    shareKey: directShareKey,
+    token: `${userCookie}; oss_group=${regionPreference || 'USA7'}`
+});
 
                         if (Array.isArray(directStreams) && directStreams.length > 0) {
                             for (const stream of directStreams) {
