@@ -270,54 +270,7 @@ async function getVideoQualityLinks({ token, shareKey, fid }) {
   const html = data && typeof data.html === 'string' ? data.html : '';
   return html;
 }
-  if (!fid) {
-    throw new FebBoxError(
-      'fid is required',
-      'NOT_FOUND'
-    );
-  }
-
-  const targetPostData = new URLSearchParams();
-targetPostData.append('fid', String(fid));
-targetPostData.append('share_key', shareKey);
-
-const axiosResponse = await axios.post(
-  `${FEBBOX_ORIGIN}/file/player`,
-  targetPostData.toString(),
-  {
-    headers: {
-      'User-Agent': USER_AGENT,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json, text/javascript, */*; q=0.01',
-      'Referer': `${FEBBOX_ORIGIN}/share/${shareKey}`,
-      'Cookie': toCookieHeader(token)
-    },
-    timeout: DEFAULT_TIMEOUT_MS,
-    validateStatus: () => true,
-    maxRedirects: 3
-  }
-);
-
-const data = axiosResponse.data;
-
-console.log(
-  '[FebBox Direct Debug] file/player response:',
-  JSON.stringify(data)
-);
-console.log(
-  '[FebBox Direct Debug] video_quality_list response:',
-  JSON.stringify(data)
-);
-
-  const html =
-    data &&
-    typeof data.html === 'string'
-      ? data.html
-      : '';
-
-  return html;
-}
+  
 
 /**
  * GET /console/user_cards
