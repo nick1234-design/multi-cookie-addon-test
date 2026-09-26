@@ -234,14 +234,35 @@ async function listShareFiles({
   console.log(
     '[FebBox Direct Debug] file_share_list response:',
     JSON.stringify(data)
-);
+  );
 
-const list =
+  const list =
     data &&
     data.data &&
     Array.isArray(data.data.file_list)
-        ? data.data.file_list
-        : [];
+      ? data.data.file_list
+      : [];
+
+  // Diagnostic: show useful metadata returned for each file.
+  for (const file of list) {
+    console.log(
+      '[FebBox Direct Debug] file metadata:',
+      JSON.stringify({
+        fid: file.fid,
+        oss_fid: file.oss_fid,
+        fid_org: file.fid_org,
+        file_name: file.file_name,
+        file_size: file.file_size,
+        has_video_quality: file.has_video_quality,
+        faststart: file.faststart,
+        hash: file.hash,
+        hash_type: file.hash_type,
+        path: file.path,
+        thumb: file.thumb,
+        thumb_small: file.thumb_small
+      })
+    );
+  }
 
   return list.map(f => ({
     fid: String(f.fid),
@@ -249,7 +270,7 @@ const list =
     isDir:
       Boolean(f.is_dir) ||
       f.type === 'folder',
-    size: f.size || null,
+    size: f.size || f.file_size || null,
     raw: undefined
   }));
 }
