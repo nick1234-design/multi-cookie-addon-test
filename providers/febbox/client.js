@@ -259,15 +259,48 @@ const list =
  * Resolve a file into direct quality links.
  */
 async function getVideoQualityLinks({ token, shareKey, fid }) {
-  if (!fid) throw new FebBoxError('fid is required', 'NOT_FOUND');
+  if (!fid) {
+    throw new FebBoxError(
+      'fid is required',
+      'NOT_FOUND'
+    );
+  }
 
-  const data = await febboxGet('/console/video_quality_list', {
-    token,
-    shareKey,
-    params: { fid },
+  console.log('[FebBox Direct Debug] quality request:', {
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    hasUiPrefix:
+      typeof token === 'string' &&
+      token.trim().toLowerCase().startsWith('ui='),
+    hasOssGroup:
+      typeof token === 'string' &&
+      token.includes('oss_group='),
+    shareKey: shareKey ? 'present' : 'missing',
+    fid
   });
 
-  const html = data && typeof data.html === 'string' ? data.html : '';
+  const data = await febboxGet(
+    '/console/video_quality_list',
+    {
+      token,
+      shareKey,
+      params: {
+        fid
+      }
+    }
+  );
+
+  console.log(
+    '[FebBox Direct Debug] video_quality_list response:',
+    data
+  );
+
+  const html =
+    data &&
+    typeof data.html === 'string'
+      ? data.html
+      : '';
+
   return html;
 }
   
