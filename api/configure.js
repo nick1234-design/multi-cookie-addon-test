@@ -42,7 +42,7 @@ button.secondary,.link.secondary{background:#263653;color:#e7edff}
 <label for="type">Content type</label><select id="type"><option value="movie">Movie</option><option value="series">Series episode</option></select>
 <label for="imdb">IMDb ID</label><input id="imdb" placeholder="tt1234567" autocomplete="off">
 <div id="episodeFields" hidden><label for="season">Season</label><input id="season" type="number" min="0" value="1"><label for="episode">Episode</label><input id="episode" type="number" min="1" value="1"></div>
-<button id="test">Test scraper</button><div id="result" aria-live="polite"></div>
+<button id="test">Test scraper (fallback)</button><button class="secondary" id="compare">Test each cookie separately</button><div id="result" aria-live="polite"></div>
 </section>
 <section class="panel">
 <h2>Install in Stremio</h2>
@@ -58,19 +58,19 @@ type.addEventListener('change',()=>fields.hidden=type.value!=='series');
 const manifest=location.origin+'/api/manifest';
 document.getElementById('manifestUrl').textContent=manifest;
 document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(manifest);result.textContent='Manifest URL copied.'}catch(e){result.textContent=manifest}});
-document.getElementById('test').addEventListener('click',async()=>{
+async function runTest(compare){
  const id=document.getElementById('imdb').value.trim();
  if(!id){result.textContent='Enter an IMDb ID first.';return}
  const params=new URLSearchParams({type:type.value,id});
  if(type.value==='series'){params.set('season',document.getElementById('season').value);params.set('episode',document.getElementById('episode').value)}
  result.textContent='Scraping with the configured FebBox cookies…';
  try{
-  const response=await fetch('/api/stream?'+params.toString());
+  if(compare)params.set('compare','1');\n  const response=await fetch('/api/stream?'+params.toString());
   const data=await response.json();
   result.textContent='';
   if(data.error){result.textContent='Error: '+data.error;return}
   const streams=Array.isArray(data.streams)?data.streams:[];
-  const summary=document.createElement('p');summary.textContent=streams.length+' stream(s) returned; '+(data.testedCookies||0)+' cookie(s) configured.';result.appendChild(summary);
+  const summary=document.createElement('p');summary.textContent=streams.length+' stream(s) returned; '+(data.testedCookies||0)+' cookie(s) configured.';result.appendChild(summary);\n  (data.cookieResults||[]).forEach(item=>{const row=document.createElement('p');row.textContent='Cookie '+item.cookie+': '+item.streamCount+' stream(s)';result.appendChild(row)});
   streams.forEach((stream,index)=>{
    const item=document.createElement('div');item.className='stream';
    const title=document.createElement('b');title.textContent=(stream.title||stream.name||'FebBox stream')+' · '+(stream.quality||'Unknown quality');item.appendChild(title);
