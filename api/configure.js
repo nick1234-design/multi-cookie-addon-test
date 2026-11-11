@@ -78,6 +78,8 @@ async function runTest(compare){
   });
   if(!streams.length){const empty=document.createElement('p');empty.textContent='No streams found. Check the Vercel function logs for cookie/authentication or source-discovery errors.';result.appendChild(empty)}
  }catch(error){result.textContent='Request failed: '+error.message}
-});
+}
+document.getElementById('test').addEventListener('click',()=>runTest(false));
+document.getElementById('compare').addEventListener('click',()=>runTest(true));
 </script></body></html>`);
 };
