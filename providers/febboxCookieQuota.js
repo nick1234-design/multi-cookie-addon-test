@@ -385,6 +385,7 @@ const pickCookieByFebboxQuota = async (
 module.exports = {
     pickCookie,
     pickCookieByFebboxQuota,
+    fetchFebboxQuota,
     recordUsage,
     markExhausted,
     getStatus,
