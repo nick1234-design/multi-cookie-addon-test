@@ -32,6 +32,7 @@ module.exports = function handler(req, res) {
 <h2>Install in Stremio</h2>
 <p>After saving your cookies, install the add-on using this manifest address.</p>
 <div class="status" id="manifest"></div>
+<button id="copyManifest" type="button">Copy manifest URL</button>
 <a class="btn" id="install" href="#">Install in Stremio</a>
 <a class="btn secondary" href="/api/manifest">View manifest</a>
 </section>
@@ -41,6 +42,7 @@ const $=id=>document.getElementById(id);
 const manifest=location.origin+"/api/manifest";
 $("manifest").textContent=manifest;
 $("install").href="stremio://"+location.host+"/api/manifest";
+$("copyManifest").addEventListener("click",async()=>{const button=$("copyManifest");try{await navigator.clipboard.writeText(manifest);button.textContent="Copied!";}catch(e){const field=document.createElement("textarea");field.value=manifest;field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();try{document.execCommand("copy");button.textContent="Copied!";}catch(copyError){$("manifest").textContent=manifest+" (Select and copy this URL manually.)";button.textContent="Copy unavailable";}field.remove();}setTimeout(()=>button.textContent="Copy manifest URL",1800);});
 async function refresh(){
  try{
   const r=await fetch("/api/settings",{cache:"no-store"});
