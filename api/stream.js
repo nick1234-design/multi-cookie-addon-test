@@ -1,17 +1,5 @@
 const Showbox = require("../providers/Showbox.js");
-
-function readCookies() {
-  const values = [
-    process.env.FEBBOX_COOKIE_1,
-    process.env.FEBBOX_COOKIE_2
-  ];
-
-  if (process.env.FEBBOX_COOKIES) {
-    values.push(...process.env.FEBBOX_COOKIES.split(/\r?\n|\|\|/));
-  }
-
-  return [...new Set(values.map(v => String(v || "").trim()).filter(Boolean))].slice(0, 2);
-}
+const { getCookies } = require("../lib/cookie-store");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -22,9 +10,19 @@ module.exports = async function handler(req, res) {
 
   try {
     const type = String(req.query.type || "movie").toLowerCase();
-    const id = String(req.query.id || "").trim();
-    const season = req.query.season == null ? null : Number(req.query.season);
-    const episode = req.query.episode == null ? null : Number(req.query.episode);
+    let id = String(req.query.id || "").trim();
+    let season = req.query.season == null ? null : Number(req.query.season);
+    let episode = req.query.episode == null ? null : Number(req.query.episode);
+
+    // Stremio encodes series episode IDs as IMDbID:season:episode.
+    if ((type === "series" || type === "tv") && (season == null || episode == null)) {
+      const parts = id.split(":");
+      if (parts.length >= 3) {
+        id = parts[0];
+        season = Number(parts[1]);
+        episode = Number(parts[2]);
+      }
+    }
 
     if (!id) return res.status(400).json({ streams: [], error: "Missing IMDb or TMDB id." });
     if (!["movie", "series", "tv"].includes(type)) {
@@ -34,11 +32,11 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ streams: [], error: "TV requests require season and episode numbers." });
     }
 
-    const cookies = readCookies();
+    const cookies = await getCookies();
     if (!cookies.length) {
       return res.status(503).json({
         streams: [],
-        error: "No FebBox cookies configured. Add FEBBOX_COOKIE_1 and FEBBOX_COOKIE_2 in Vercel Environment Variables."
+        error: "No FebBox cookies configured. Open the add-on /configure page and save your cookies."
       });
     }
 
