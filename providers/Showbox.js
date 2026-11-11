@@ -111,19 +111,16 @@ let detectedOssGroup = null; // To store the detected oss_group value
 
 // Function to load cookies from cookies.txt (for fallback)
 const loadFallbackCookies = async () => {
-    try {
-        const cookiesPath = path.join(__dirname, '..', 'cookies.txt');
-        const cookiesContent = await fs.readFile(cookiesPath, 'utf-8');
-        const loadedCookies = cookiesContent
-            .split('\n')
-            .filter(line => line.trim().length > 0)
-            .map(cookie => cookie.trim());
-        console.log(`Loaded ${loadedCookies.length} fallback cookies from cookies.txt`);
-        return loadedCookies;
-    } catch (error) {
-        console.warn(`Warning: Could not load fallback cookies from cookies.txt: ${error.message}`);
-        return [];
-    }
+    const configured = [
+        process.env.FEBBOX_COOKIE_1,
+        process.env.FEBBOX_COOKIE_2,
+        ...(process.env.FEBBOX_COOKIES || '').split(/\r?\n|\|\|/)
+    ];
+    const loadedCookies = [...new Set(
+        configured.map(cookie => String(cookie || '').trim()).filter(Boolean)
+    )].slice(0, 2);
+    console.log(`Loaded ${loadedCookies.length} FebBox cookie(s) from environment variables.`);
+    return loadedCookies;
 };
 
 // Add configurable default region
