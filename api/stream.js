@@ -52,18 +52,42 @@ module.exports = async function handler(req, res) {
       tmdbType = converted.tmdbType;
     }
 
-    const streams = await Showbox.getStreamsFromTmdbId(
+    const args = [
       tmdbType,
       tmdbId,
       season,
       episode,
-      process.env.FEBBOX_REGION || "USA7",
+      process.env.FEBBOX_REGION || "USA7"
+    ];
+
+    if (req.query.compare === "1") {
+      const cookieResults = [];
+      const combined = [];
+      for (let index = 0; index < cookies.length; index++) {
+        const result = await Showbox.getStreamsFromTmdbId(
+          ...args,
+          [cookies[index]]
+        );
+        const list = Array.isArray(result) ? result : [];
+        cookieResults.push({ cookie: index + 1, streamCount: list.length });
+        combined.push(...list);
+      }
+      return res.status(200).json({
+        streams: combined,
+        testedCookies: cookies.length,
+        cookieResults
+      });
+    }
+
+    const streams = await Showbox.getStreamsFromTmdbId(
+      ...args,
       cookies
     );
 
     return res.status(200).json({
       streams: Array.isArray(streams) ? streams : [],
-      testedCookies: cookies.length
+      testedCookies: cookies.length,
+      mode: "fallback"
     });
   } catch (error) {
     console.error("[Addon Stream Error]", error && error.stack ? error.stack : error);
