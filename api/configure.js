@@ -2,7 +2,8 @@ module.exports = function handler(req, res) {
   const cookies = [
     process.env.FEBBOX_COOKIE_1,
     process.env.FEBBOX_COOKIE_2,
-    ...(process.env.FEBBOX_COOKIES || "").split(/\r?\n|\|\|/)
+    ...(process.env.FEBBOX_COOKIES || "").split(/\r?
+|\|\|/)
   ].map(v => String(v || "").trim()).filter(Boolean);
   const count = [...new Set(cookies)].slice(0, 2).length;
   res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -65,12 +66,14 @@ async function runTest(compare){
  if(type.value==='series'){params.set('season',document.getElementById('season').value);params.set('episode',document.getElementById('episode').value)}
  result.textContent='Scraping with the configured FebBox cookies…';
  try{
-  if(compare)params.set('compare','1');\n  const response=await fetch('/api/stream?'+params.toString());
+  if(compare)params.set('compare','1');
+  const response=await fetch('/api/stream?'+params.toString());
   const data=await response.json();
   result.textContent='';
   if(data.error){result.textContent='Error: '+data.error;return}
   const streams=Array.isArray(data.streams)?data.streams:[];
-  const summary=document.createElement('p');summary.textContent=streams.length+' stream(s) returned; '+(data.testedCookies||0)+' cookie(s) configured.';result.appendChild(summary);\n  (data.cookieResults||[]).forEach(item=>{const row=document.createElement('p');row.textContent='Cookie '+item.cookie+': '+item.streamCount+' stream(s)';result.appendChild(row)});
+  const summary=document.createElement('p');summary.textContent=streams.length+' stream(s) returned; '+(data.testedCookies||0)+' cookie(s) configured.';result.appendChild(summary);
+  (data.cookieResults||[]).forEach(item=>{const row=document.createElement('p');row.textContent='Cookie '+item.cookie+': '+item.streamCount+' stream(s)';result.appendChild(row)});
   streams.forEach((stream,index)=>{
    const item=document.createElement('div');item.className='stream';
    const title=document.createElement('b');title.textContent=(stream.title||stream.name||'FebBox stream')+' · '+(stream.quality||'Unknown quality');item.appendChild(title);
