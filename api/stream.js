@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     .split(/\r?\n/)
     .map(cookie => cookie.trim())
     .filter(Boolean)
-    .slice(0, 1);
+    .slice(0, 2);
 
         console.log(
             `[Addon] Loaded ${userCookies.length} cookies for direct multi-cookie test.`
