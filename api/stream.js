@@ -1,5 +1,6 @@
 const Showbox = require("../providers/Showbox.js");
 const { getCookies } = require("../lib/cookie-store");
+const { fetchFebboxQuota } = require("../providers/febboxCookieQuota");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -50,6 +51,20 @@ module.exports = async function handler(req, res) {
       tmdbType = converted.tmdbType;
     }
 
+    // Preserve cookie order, but skip a cookie when FebBox confirms its quota is exhausted.
+    const usableCookies = [];
+    for (let index = 0; index < usableCookies.length; index++) {
+      const quota = await fetchFebboxQuota(cookies[index], process.env.FEBBOX_REGION || "USA7", index + 1);
+      if (quota && quota.remainingBytes <= 0) {
+        console.log(`[Addon] Cookie ${index + 1} quota exhausted; trying the next configured cookie.`);
+        continue;
+      }
+      usableCookies.push(cookies[index]);
+    }
+    if (!usableCookies.length) {
+      return res.status(200).json({ streams: [], error: "Both FebBox cookies have exhausted their available quota." });
+    }
+
     const args = [
       tmdbType,
       tmdbId,
@@ -64,7 +79,7 @@ module.exports = async function handler(req, res) {
       for (let index = 0; index < cookies.length; index++) {
         const result = await Showbox.getStreamsFromTmdbId(
           ...args,
-          [cookies[index]]
+          [usableCookies[index]]
         );
         const list = Array.isArray(result) ? result : [];
         cookieResults.push({ cookie: index + 1, streamCount: list.length });
@@ -72,14 +87,14 @@ module.exports = async function handler(req, res) {
       }
       return res.status(200).json({
         streams: combined,
-        testedCookies: cookies.length,
+        testedCookies: usableCookies.length,
         cookieResults
       });
     }
 
     const streams = await Showbox.getStreamsFromTmdbId(
       ...args,
-      cookies
+      usableCookies
     );
 
     return res.status(200).json({
