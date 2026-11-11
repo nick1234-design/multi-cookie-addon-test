@@ -2,7 +2,7 @@ module.exports = function handler(req, res) {
   const cookies = [
     process.env.FEBBOX_COOKIE_1,
     process.env.FEBBOX_COOKIE_2,
-    ...(process.env.FEBBOX_COOKIES || "").split(/\r?
+    ...(process.env.FEBBOX_COOKIES || "").split("||").split(/\r?
 |\|\|/)
   ].map(v => String(v || "").trim()).filter(Boolean);
   const count = [...new Set(cookies)].slice(0, 2).length;
