@@ -1,1 +1,6 @@
-{}
+{
+  "rewrites": [
+    { "source": "/configure", "destination": "/api/configure" },
+    { "source": "/manifest.json", "destination": "/api/manifest" }
+  ]
+}
